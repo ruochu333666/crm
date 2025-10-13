@@ -1,5 +1,4 @@
 import { Button, Checkbox, Form, Input } from "antd";
-import type { FormProps } from "react-router-dom";
 import styles from "./index.module.less";
 
 type FieldType = {
@@ -7,54 +6,67 @@ type FieldType = {
   password?: string;
   remember?: string;
 };
-function LoginPage() {
-  const login = () => {};
 
+function LoginPage() {
   const onFinish = (values: any) => {
     console.log("Success:", values);
   };
   return (
     <div className={styles.loginContainer}>
-      <div className={styles.title}>贸易管理系统</div>
-      <div className={styles.text}>客户关系管理平台</div>
-      <Form
-        name="basic"
-        labelCol={{ span: 8 }}
-        wrapperCol={{ span: 16 }}
-        style={{ maxWidth: 600 }}
-        initialValues={{ remember: true }}
-        onFinish={onFinish}
-        autoComplete="off"
-      >
-        <Form.Item<FieldType>
-          label="Username"
-          name="username"
-          rules={[{ required: true, message: "Please input your username!" }]}
-        >
-          <Input />
-        </Form.Item>
-        <Form.Item<FieldType>
-          label="Password"
-          name="password"
-          rules={[{ required: true, message: "Please input your password!" }]}
-        >
-          <Input.Password />
-        </Form.Item>
+      <div className={styles.loginCard}>
+        <div className={styles.decorativeElement}></div>
+        <div className={styles.decorativeElement2}></div>
 
-        <Form.Item<FieldType>
-          name="remember"
-          valuePropName="checked"
-          label={null}
-        >
-          <Checkbox>记住我</Checkbox>
-        </Form.Item>
+        <div className={styles.title}>贸易管理系统</div>
+        <div className={styles.subtitle}>客户关系管理平台</div>
 
-        <Form.Item label={null}>
-          <Button type="primary" htmlType="submit">
-            提交
-          </Button>
-        </Form.Item>
-      </Form>
+        <div className={styles.formContainer}>
+          <Form
+            name="basic"
+            layout="vertical"
+            initialValues={{ remember: true }}
+            onFinish={onFinish}
+            autoComplete="off"
+          >
+            <Form.Item<FieldType>
+              label="用户名"
+              name="username"
+              className={styles.formItem}
+              rules={[{ required: true, message: "请输入用户名!" }]}
+            >
+              <Input placeholder="请输入用户名" />
+            </Form.Item>
+
+            <Form.Item<FieldType>
+              label="密码"
+              name="password"
+              className={styles.formItem}
+              rules={[{ required: true, message: "请输入密码!" }]}
+            >
+              <Input.Password placeholder="请输入密码" />
+            </Form.Item>
+
+            <Form.Item<FieldType>
+              name="remember"
+              valuePropName="checked"
+              className={styles.rememberMe}
+            >
+              <Checkbox>记住我</Checkbox>
+            </Form.Item>
+
+            <Form.Item>
+              <Button
+                type="primary"
+                htmlType="submit"
+                className={styles.submitButton}
+                block
+              >
+                登录
+              </Button>
+            </Form.Item>
+          </Form>
+        </div>
+      </div>
     </div>
   );
 }
