@@ -23,7 +23,24 @@ import {
 import { MainLayout } from "../../components/MainLayout";
 import { CustomerForm } from "./components/CustomerForm";
 import { CustomerDetail } from "./components/CustomerDetail";
-import { customersApi, Customer } from "../../api/customers";
+import { customersApi } from "../../api/customers";
+
+// 本地定义 Customer 类型
+interface Customer {
+  id?: number;
+  name: string;
+  company: string;
+  contact: string;
+  phone: string;
+  email: string;
+  region: string;
+  status: "active" | "potential" | "inactive";
+  industry?: string;
+  address?: string;
+  remark?: string;
+  created_at?: string;
+  updated_at?: string;
+}
 import styles from "./index.module.less";
 
 const { Search } = Input;
