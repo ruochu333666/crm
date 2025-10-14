@@ -1,7 +1,8 @@
 import { Button, Checkbox, Form, Input, message } from "antd";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { authApi } from "../../api/auth";
+import { useAuthStore } from "../../store/auth";
 import styles from "./index.module.less";
 
 type FieldType = {
@@ -12,6 +13,9 @@ type FieldType = {
 
 function LoginPage() {
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { login } = useAuthStore();
 
   const onFinish = async (values: any) => {
     try {
@@ -21,15 +25,15 @@ function LoginPage() {
         password: values.password,
       });
 
-      // 保存 token 到 localStorage
-      localStorage.setItem("token", response.token);
-      localStorage.setItem("user", JSON.stringify(response.user));
+      // 使用状态管理保存登录信息
+      login(response.token, response.user);
 
       message.success("登录成功！");
       console.log("登录成功:", response);
 
-      // TODO: 跳转到主页
-      // navigate('/home');
+      // 跳转到原来要访问的页面，或主页
+      const from = location.state?.from?.pathname || "/home";
+      navigate(from, { replace: true });
     } catch (error: any) {
       message.error(error.message || "登录失败");
     } finally {
