@@ -1,9 +1,10 @@
 import { Router } from "express";
 import { healthRouter } from "./health";
 import { authRouter } from "./auth";
+import { customersRouter } from "./customers";
 
 export const apiRouter = Router();
 
 apiRouter.use("/health", healthRouter);
 apiRouter.use("/auth", authRouter);
-
+apiRouter.use("/customers", customersRouter);

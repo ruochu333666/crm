@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Table,
   Button,
@@ -23,6 +23,7 @@ import {
 import { MainLayout } from "../../components/MainLayout";
 import { CustomerForm } from "./components/CustomerForm";
 import { CustomerDetail } from "./components/CustomerDetail";
+import { customersApi, Customer } from "../../api/customers";
 import styles from "./index.module.less";
 
 const { Search } = Input;
@@ -57,11 +58,16 @@ const mockCustomers = [
 ];
 
 export default function CustomerPage() {
-  const [customers, setCustomers] = useState(mockCustomers);
+  const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [regionFilter, setRegionFilter] = useState("all");
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pageSize: 10,
+    total: 0,
+  });
 
   // 模态框状态
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
@@ -176,38 +182,56 @@ export default function CustomerPage() {
     setIsDetailModalVisible(true);
   };
 
-  const handleDelete = (id: any) => {
-    setCustomers(customers.filter((c) => c.id !== id));
-    message.success("删除成功");
+  const handleDelete = async (id: number) => {
+    try {
+      await customersApi.delete(id);
+      setCustomers(customers.filter((c) => c.id !== id));
+      message.success("删除成功");
+    } catch (error: any) {
+      message.error(error.message || "删除失败");
+    }
   };
 
-  const handleSearch = (value: any) => {
+  const handleSearch = (value: string) => {
     setSearchText(value);
+    loadCustomers();
   };
 
   const handleRefresh = () => {
-    setLoading(true);
-    // 模拟刷新
-    setTimeout(() => {
-      setLoading(false);
-      message.success("刷新成功");
-    }, 1000);
+    loadCustomers();
   };
 
-  // 过滤数据
-  const filteredCustomers = customers.filter((customer) => {
-    const matchesSearch =
-      !searchText ||
-      customer.name.toLowerCase().includes(searchText.toLowerCase()) ||
-      customer.contact.toLowerCase().includes(searchText.toLowerCase());
+  // 加载客户数据
+  const loadCustomers = async () => {
+    try {
+      setLoading(true);
+      const response = await customersApi.getList({
+        page: pagination.current,
+        pageSize: pagination.pageSize,
+        search: searchText,
+        status: statusFilter === "all" ? "" : statusFilter,
+        region: regionFilter === "all" ? "" : regionFilter,
+      });
 
-    const matchesStatus =
-      statusFilter === "all" || customer.status === statusFilter;
-    const matchesRegion =
-      regionFilter === "all" || customer.region === regionFilter;
+      setCustomers(response.data);
+      setPagination((prev) => ({
+        ...prev,
+        total: response.total,
+      }));
+    } catch (error: any) {
+      message.error(error.message || "加载数据失败");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    return matchesSearch && matchesStatus && matchesRegion;
-  });
+  // 组件挂载时加载数据
+  useEffect(() => {
+    loadCustomers();
+  }, []);
+
+  // 过滤数据（前端过滤，实际项目中应该用后端过滤）
+  const filteredCustomers = customers;
 
   return (
     <MainLayout>
