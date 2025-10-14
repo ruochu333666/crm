@@ -1,0 +1,67 @@
+.customerPage {
+  padding: 0;
+}
+
+.pageHeader {
+  margin-bottom: 24px;
+
+  h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1d1d1f;
+    margin: 0 0 8px 0;
+  }
+
+  p {
+    font-size: 16px;
+    color: #86868b;
+    margin: 0;
+  }
+}
+
+.toolbar {
+  margin-bottom: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+
+  .ant-card-body {
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.toolbarLeft {
+  display: flex;
+  align-items: center;
+}
+
+.toolbarRight {
+  display: flex;
+  align-items: center;
+}
+
+.tableCard {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+
+  .ant-card-body {
+    padding: 0;
+  }
+}
+
+// 响应式设计
+@media (max-width: 768px) {
+  .toolbar {
+    .ant-card-body {
+      flex-direction: column;
+      gap: 16px;
+      align-items: stretch;
+    }
+  }
+
+  .toolbarRight {
+    justify-content: center;
+  }
+}

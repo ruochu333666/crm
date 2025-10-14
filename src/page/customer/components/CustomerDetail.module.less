@@ -1,0 +1,85 @@
+.detailContainer {
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.infoCard,
+.contactCard,
+.orderCard {
+  margin-bottom: 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.timelineItem {
+  .timelineTime {
+    color: #86868b;
+    font-size: 12px;
+    margin-top: 4px;
+  }
+}
+
+.orderList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.orderItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.orderInfo {
+  flex: 1;
+
+  strong {
+    display: block;
+    margin-bottom: 4px;
+    color: #1d1d1f;
+  }
+
+  p {
+    margin: 0 0 8px 0;
+    color: #666;
+  }
+}
+
+.orderStatus {
+  display: inline-block;
+  padding: 2px 8px;
+  background: #52c41a;
+  color: white;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.orderAmount {
+  text-align: right;
+
+  .amount {
+    display: block;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1d1d1f;
+    margin-bottom: 4px;
+  }
+
+  .orderDate {
+    color: #86868b;
+    font-size: 12px;
+  }
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  padding-top: 20px;
+  border-top: 1px solid #f0f0f0;
+  margin-top: 20px;
+}

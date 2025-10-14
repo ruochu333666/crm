@@ -6,6 +6,7 @@ import {
   LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
+  TeamOutlined,
 } from "@ant-design/icons";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -35,6 +36,12 @@ export function Sidebar({ collapsed, onCollapse }: SidebarProps) {
       icon: <HomeOutlined />,
       label: "首页",
       onClick: () => navigate("/home"),
+    },
+    {
+      key: "customer",
+      icon: <TeamOutlined />,
+      label: "客户管理",
+      onClick: () => navigate("/customer"),
     },
     {
       key: "profile",
