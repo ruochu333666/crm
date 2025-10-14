@@ -1,55 +1,54 @@
-import { Button, Checkbox, Form, Input, message } from "antd";
+import { Button, Form, Input, message } from "antd";
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { authApi } from "../../api/auth";
 import styles from "./index.module.less";
 
 type FieldType = {
   username?: string;
   password?: string;
-  remember?: string;
+  confirmPassword?: string;
 };
 
-function LoginPage() {
+function RegisterPage() {
   const [loading, setLoading] = useState(false);
 
   const onFinish = async (values: any) => {
     try {
       setLoading(true);
-      const response = await authApi.login({
+
+      // 验证密码确认
+      if (values.password !== values.confirmPassword) {
+        message.error("两次输入的密码不一致");
+        return;
+      }
+
+      await authApi.register({
         username: values.username,
         password: values.password,
       });
 
-      // 保存 token 到 localStorage
-      localStorage.setItem("token", response.token);
-      localStorage.setItem("user", JSON.stringify(response.user));
+      message.success("注册成功！请登录");
+      console.log("注册成功");
 
-      message.success("登录成功！");
-      console.log("登录成功:", response);
-
-      // TODO: 跳转到主页
-      // navigate('/home');
+      // TODO: 跳转到登录页
+      // navigate('/login');
     } catch (error: any) {
-      message.error(error.message || "登录失败");
+      message.error(error.message || "注册失败");
     } finally {
       setLoading(false);
     }
   };
-  return (
-    <div className={styles.loginContainer}>
-      <div className={styles.loginCard}>
-        <div className={styles.decorativeElement}></div>
-        <div className={styles.decorativeElement2}></div>
 
-        <div className={styles.title}>贸易管理系统</div>
-        <div className={styles.subtitle}>客户关系管理平台</div>
+  return (
+    <div className={styles.registerContainer}>
+      <div className={styles.registerCard}>
+        <div className={styles.title}>用户注册</div>
+        <div className={styles.subtitle}>创建新账户</div>
 
         <div className={styles.formContainer}>
           <Form
-            name="basic"
+            name="register"
             layout="vertical"
-            initialValues={{ remember: true }}
             onFinish={onFinish}
             autoComplete="off"
           >
@@ -57,7 +56,10 @@ function LoginPage() {
               label="用户名"
               name="username"
               className={styles.formItem}
-              rules={[{ required: true, message: "请输入用户名!" }]}
+              rules={[
+                { required: true, message: "请输入用户名!" },
+                { min: 3, message: "用户名至少3个字符" },
+              ]}
             >
               <Input placeholder="请输入用户名" />
             </Form.Item>
@@ -66,17 +68,21 @@ function LoginPage() {
               label="密码"
               name="password"
               className={styles.formItem}
-              rules={[{ required: true, message: "请输入密码!" }]}
+              rules={[
+                { required: true, message: "请输入密码!" },
+                { min: 6, message: "密码至少6个字符" },
+              ]}
             >
               <Input.Password placeholder="请输入密码" />
             </Form.Item>
 
             <Form.Item<FieldType>
-              name="remember"
-              valuePropName="checked"
-              className={styles.rememberMe}
+              label="确认密码"
+              name="confirmPassword"
+              className={styles.formItem}
+              rules={[{ required: true, message: "请确认密码!" }]}
             >
-              <Checkbox>记住我</Checkbox>
+              <Input.Password placeholder="请再次输入密码" />
             </Form.Item>
 
             <Form.Item>
@@ -87,13 +93,9 @@ function LoginPage() {
                 loading={loading}
                 block
               >
-                登录
+                注册
               </Button>
             </Form.Item>
-
-            <div className={styles.registerLink}>
-              还没有账户？<Link to="/register">立即注册</Link>
-            </div>
           </Form>
         </div>
       </div>
@@ -101,4 +103,4 @@ function LoginPage() {
   );
 }
 
-export default LoginPage;
+export default RegisterPage;
