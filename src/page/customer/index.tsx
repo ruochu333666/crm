@@ -106,7 +106,10 @@ export default function CustomerPage() {
           potential: { color: "blue", text: "潜在" },
           inactive: { color: "red", text: "非活跃" },
         };
-        const config = statusMap[status] || { color: "default", text: status };
+        const config = statusMap[status as keyof typeof statusMap] || {
+          color: "default",
+          text: status,
+        };
         return <Tag color={config.color}>{config.text}</Tag>;
       },
     },
@@ -126,7 +129,7 @@ export default function CustomerPage() {
       title: "操作",
       key: "action",
       width: 200,
-      render: (_, record) => (
+      render: (_: any, record: any) => (
         <Space size="small">
           <Button
             type="text"
@@ -163,22 +166,22 @@ export default function CustomerPage() {
     setIsAddModalVisible(true);
   };
 
-  const handleEdit = (customer) => {
+  const handleEdit = (customer: any) => {
     setSelectedCustomer(customer);
     setIsEditModalVisible(true);
   };
 
-  const handleViewDetail = (customer) => {
+  const handleViewDetail = (customer: any) => {
     setSelectedCustomer(customer);
     setIsDetailModalVisible(true);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = (id: any) => {
     setCustomers(customers.filter((c) => c.id !== id));
     message.success("删除成功");
   };
 
-  const handleSearch = (value) => {
+  const handleSearch = (value: any) => {
     setSearchText(value);
   };
 
