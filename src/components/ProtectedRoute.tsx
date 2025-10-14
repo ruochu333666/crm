@@ -7,13 +7,13 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { isAuthenticated, checkAuth } = useAuthStore();
+  const { isAuthenticated, initialized } = useAuthStore();
   const location = useLocation();
 
-  useEffect(() => {
-    // 检查认证状态
-    checkAuth();
-  }, [checkAuth]);
+  // 初始化未完成时，不做重定向，避免闪退
+  if (!initialized) {
+    return null;
+  }
 
   if (!isAuthenticated) {
     // 保存当前路径，登录后可以跳转回来

@@ -242,10 +242,10 @@ export default function CustomerPage() {
     }
   };
 
-  // 组件挂载时加载数据
-  useEffect(() => {
-    loadCustomers();
-  }, []);
+  // 组件挂载时加载数据 - 临时禁用
+  // useEffect(() => {
+  //   loadCustomers();
+  // }, []);
 
   // 过滤数据（前端过滤，实际项目中应该用后端过滤）
   const filteredCustomers = customers;

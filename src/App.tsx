@@ -8,12 +8,12 @@ import { ProtectedRoute } from "./components/ProtectedRoute";
 import { useAuthStore } from "./store/auth";
 
 function App() {
-  const { checkAuth } = useAuthStore();
+  const { initializeAuth } = useAuthStore();
 
   useEffect(() => {
     // 应用启动时检查认证状态
-    checkAuth();
-  }, [checkAuth]);
+    initializeAuth();
+  }, [initializeAuth]);
 
   return (
     <BrowserRouter>
