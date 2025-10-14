@@ -211,7 +211,7 @@ export default function CustomerPage() {
 
   const handleSearch = (value: string) => {
     setSearchText(value);
-    loadCustomers();
+    setPagination((prev) => ({ ...prev, current: 1 }));
   };
 
   const handleRefresh = () => {
@@ -242,13 +242,28 @@ export default function CustomerPage() {
     }
   };
 
-  // 组件挂载时加载数据 - 临时禁用
-  // useEffect(() => {
-  //   loadCustomers();
-  // }, []);
+  // 当分页、筛选、搜索变化时加载数据
+  useEffect(() => {
+    loadCustomers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    pagination.current,
+    pagination.pageSize,
+    statusFilter,
+    regionFilter,
+    searchText,
+  ]);
 
   // 过滤数据（前端过滤，实际项目中应该用后端过滤）
   const filteredCustomers = customers;
+
+  const handleTableChange = (pager: any) => {
+    setPagination((prev) => ({
+      ...prev,
+      current: pager.current,
+      pageSize: pager.pageSize,
+    }));
+  };
 
   return (
     <MainLayout>
@@ -326,12 +341,14 @@ export default function CustomerPage() {
             rowKey="id"
             loading={loading}
             pagination={{
-              total: filteredCustomers.length,
-              pageSize: 10,
+              current: pagination.current,
+              pageSize: pagination.pageSize,
+              total: pagination.total,
               showSizeChanger: true,
               showQuickJumper: true,
               showTotal: (total) => `共 ${total} 条记录`,
             }}
+            onChange={handleTableChange}
             scroll={{ x: 1200 }}
           />
         </Card>
@@ -349,6 +366,7 @@ export default function CustomerPage() {
             onSuccess={() => {
               setIsAddModalVisible(false);
               message.success("新增成功");
+              loadCustomers();
             }}
             onCancel={() => setIsAddModalVisible(false)}
           />
@@ -367,6 +385,7 @@ export default function CustomerPage() {
             onSuccess={() => {
               setIsEditModalVisible(false);
               message.success("编辑成功");
+              loadCustomers();
             }}
             onCancel={() => setIsEditModalVisible(false)}
           />
