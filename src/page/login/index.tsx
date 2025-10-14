@@ -1,4 +1,6 @@
-import { Button, Checkbox, Form, Input } from "antd";
+import { Button, Checkbox, Form, Input, message } from "antd";
+import { useState } from "react";
+import { authApi } from "../../api/auth";
 import styles from "./index.module.less";
 
 type FieldType = {
@@ -8,8 +10,30 @@ type FieldType = {
 };
 
 function LoginPage() {
-  const onFinish = (values: any) => {
-    console.log("Success:", values);
+  const [loading, setLoading] = useState(false);
+
+  const onFinish = async (values: any) => {
+    try {
+      setLoading(true);
+      const response = await authApi.login({
+        username: values.username,
+        password: values.password,
+      });
+
+      // 保存 token 到 localStorage
+      localStorage.setItem("token", response.token);
+      localStorage.setItem("user", JSON.stringify(response.user));
+
+      message.success("登录成功！");
+      console.log("登录成功:", response);
+
+      // TODO: 跳转到主页
+      // navigate('/home');
+    } catch (error: any) {
+      message.error(error.message || "登录失败");
+    } finally {
+      setLoading(false);
+    }
   };
   return (
     <div className={styles.loginContainer}>
@@ -59,6 +83,7 @@ function LoginPage() {
                 type="primary"
                 htmlType="submit"
                 className={styles.submitButton}
+                loading={loading}
                 block
               >
                 登录
