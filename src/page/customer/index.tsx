@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Table,
   Button,
@@ -6,7 +6,6 @@ import {
   Select,
   Space,
   Modal,
-  Form,
   message,
   Popconfirm,
   Tag,
@@ -45,34 +44,6 @@ import styles from "./index.module.less";
 
 const { Search } = Input;
 const { Option } = Select;
-
-// 模拟客户数据
-const mockCustomers = [
-  {
-    id: 1,
-    name: "阿里巴巴集团",
-    contact: "张三",
-    phone: "13800138000",
-    email: "zhangsan@alibaba.com",
-    company: "阿里巴巴集团",
-    status: "active",
-    region: "华东",
-    createTime: "2024-01-15",
-    lastContact: "2024-01-20",
-  },
-  {
-    id: 2,
-    name: "腾讯科技",
-    contact: "李四",
-    phone: "13900139000",
-    email: "lisi@tencent.com",
-    company: "腾讯科技",
-    status: "potential",
-    region: "华南",
-    createTime: "2024-01-10",
-    lastContact: "2024-01-18",
-  },
-];
 
 export default function CustomerPage() {
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -219,7 +190,7 @@ export default function CustomerPage() {
   };
 
   // 加载客户数据
-  const loadCustomers = async () => {
+  const loadCustomers = useCallback(async () => {
     try {
       setLoading(true);
       const response = await customersApi.getList({
@@ -240,19 +211,18 @@ export default function CustomerPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [
+    pagination.current,
+    pagination.pageSize,
+    regionFilter,
+    searchText,
+    statusFilter,
+  ]);
 
   // 当分页、筛选、搜索变化时加载数据
   useEffect(() => {
     loadCustomers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    pagination.current,
-    pagination.pageSize,
-    statusFilter,
-    regionFilter,
-    searchText,
-  ]);
+  }, [loadCustomers]);
 
   // 过滤数据（前端过滤，实际项目中应该用后端过滤）
   const filteredCustomers = customers;

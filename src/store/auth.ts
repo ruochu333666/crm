@@ -15,7 +15,7 @@ interface AuthState {
   initializeAuth: () => void;
 }
 
-export const useAuthStore = create<AuthState>((set, get) => ({
+export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   token: null,
   isAuthenticated: false,
@@ -86,13 +86,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         });
       }
     } else {
-      console.log("❌ 没有找到存储的认证信息");
-      set({
-        token: null,
-        user: null,
-        isAuthenticated: false,
-        initialized: true,
-      });
+      set({ initialized: true });
     }
   },
 }));

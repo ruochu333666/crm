@@ -8,7 +8,6 @@ import {
   MenuUnfoldOutlined,
   TeamOutlined,
 } from "@ant-design/icons";
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/auth";
 import styles from "./Sidebar.module.less";

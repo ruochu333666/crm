@@ -1,4 +1,3 @@
-import React from "react";
 import type { RouteObject } from "react-router-dom";
 import LoginPage from "./page/login";
 import RegisterPage from "./page/register";
