@@ -30,8 +30,8 @@ authRouter.post("/register", async (req, res, next) => {
     const passwordHash = await bcrypt.hash(password, salt);
 
     await pool.query(
-      "INSERT INTO users (username, password_hash, created_at) VALUES (?, ?, NOW())",
-      [username, passwordHash]
+      "INSERT INTO users (username, password_hash, created_at, role, team_id) VALUES (?, ?, NOW(), ?, ?)",
+      [username, passwordHash, "sales", 1]
     );
 
     return res.status(201).json({ message: "注册成功" });
@@ -52,7 +52,7 @@ authRouter.post("/login", async (req, res, next) => {
     }
 
     const [rows] = await pool.query<RowDataPacket[]>(
-      "SELECT id, username, password_hash FROM users WHERE username = ? LIMIT 1",
+      "SELECT id, username, role, team_id, password_hash FROM users WHERE username = ? LIMIT 1",
       [username]
     );
 
@@ -67,11 +67,26 @@ authRouter.post("/login", async (req, res, next) => {
     }
 
     const secret = process.env.JWT_SECRET || "dev_secret";
-    const token = jwt.sign({ sub: user.id, username: user.username }, secret, {
-      expiresIn: "7d",
-    });
+    const token = jwt.sign(
+      {
+        sub: user.id,
+        username: user.username,
+        role: (user.role as string) || "sales",
+        teamId: user.team_id,
+      },
+      secret,
+      { expiresIn: "7d" }
+    );
 
-    return res.json({ token, user: { id: user.id, username: user.username } });
+    return res.json({
+      token,
+      user: {
+        id: user.id,
+        username: user.username,
+        role: (user.role as string) || "sales",
+        teamId: user.team_id ? Number(user.team_id) : 1,
+      },
+    });
   } catch (err) {
     next(err);
   }

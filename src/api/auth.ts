@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:5174/api";
+import { apiRequest } from "./http";
 
 export interface LoginParams {
   username: string;
@@ -10,6 +10,8 @@ export interface LoginResponse {
   user: {
     id: number;
     username: string;
+    role?: "sales" | "manager" | "admin";
+    teamId?: number;
   };
 }
 
@@ -19,11 +21,9 @@ export interface RegisterParams {
 }
 
 export const authApi = {
-  // 登录
   login: async (params: LoginParams): Promise<LoginResponse> => {
-    const response = await fetch(`${API_BASE}/auth/login`, {
+    const response = await apiRequest("/auth/login", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(params),
     });
 
@@ -35,11 +35,9 @@ export const authApi = {
     return response.json();
   },
 
-  // 注册
   register: async (params: RegisterParams): Promise<{ message: string }> => {
-    const response = await fetch(`${API_BASE}/auth/register`, {
+    const response = await apiRequest("/auth/register", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(params),
     });
 
@@ -51,4 +49,3 @@ export const authApi = {
     return response.json();
   },
 };
-

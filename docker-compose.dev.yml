@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  # MySQL数据库
+  mysql:
+    image: mysql:8.0
+    container_name: crm-mysql-dev
+    environment:
+      MYSQL_ROOT_PASSWORD: root123
+      MYSQL_DATABASE: app_db
+      MYSQL_USER: crm_user
+      MYSQL_PASSWORD: crm123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./backend/customers.sql:/docker-entrypoint-initdb.d/customers.sql
+    networks:
+      - crm-dev-network
+
+  # 后端开发服务
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: crm-backend-dev
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USER: crm_user
+      DB_PASSWORD: crm123
+      DB_NAME: app_db
+      JWT_SECRET: dev-secret
+      PORT: 5174
+    ports:
+      - "5174:5174"
+    depends_on:
+      - mysql
+    networks:
+      - crm-dev-network
+    volumes:
+      - ./backend/src:/app/src:ro
+      - ./backend/tsconfig.json:/app/tsconfig.json:ro
+
+  # 前端开发服务
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: crm-frontend-dev
+    environment:
+      - VITE_API_BASE=http://localhost:5174/api
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    networks:
+      - crm-dev-network
+    volumes:
+      - ./src:/app/src
+      - ./index.html:/app/index.html
+      - ./package.json:/app/package.json
+      - ./tsconfig.json:/app/tsconfig.json
+      - ./vite.config.ts:/app/vite.config.ts
+
+volumes:
+  mysql_data:
+
+networks:
+  crm-dev-network:
+    driver: bridge

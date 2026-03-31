@@ -18,28 +18,13 @@ import {
   DeleteOutlined,
   EyeOutlined,
   ReloadOutlined,
+  ExportOutlined,
 } from "@ant-design/icons";
 import { MainLayout } from "../../components/MainLayout";
 import { CustomerForm } from "./components/CustomerForm";
 import { CustomerDetail } from "./components/CustomerDetail";
-import { customersApi } from "../../api/customers";
-
-// 本地定义 Customer 类型
-interface Customer {
-  id?: number;
-  name: string;
-  company: string;
-  contact: string;
-  phone: string;
-  email: string;
-  region: string;
-  status: "active" | "potential" | "inactive";
-  industry?: string;
-  address?: string;
-  remark?: string;
-  created_at?: string;
-  updated_at?: string;
-}
+import { customersApi, type Customer } from "../../api/customers";
+import { poolApi } from "../../api/pool";
 import styles from "./index.module.less";
 
 const { Search } = Input;
@@ -61,7 +46,9 @@ export default function CustomerPage() {
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [isDetailModalVisible, setIsDetailModalVisible] = useState(false);
-  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
+    null
+  );
 
   // 表格列配置
   const columns = [
@@ -114,16 +101,18 @@ export default function CustomerPage() {
       width: 100,
     },
     {
-      title: "最后联系",
-      dataIndex: "lastContact",
-      key: "lastContact",
-      width: 120,
+      title: "更新时间",
+      dataIndex: "updated_at",
+      key: "updated_at",
+      width: 170,
+      render: (v: string | undefined) =>
+        v ? String(v).replace("T", " ").slice(0, 19) : "—",
     },
     {
       title: "操作",
       key: "action",
-      width: 200,
-      render: (_: any, record: any) => (
+      width: 260,
+      render: (_: unknown, record: Customer) => (
         <Space size="small">
           <Button
             type="text"
@@ -141,12 +130,24 @@ export default function CustomerPage() {
           </Button>
           <Popconfirm
             title="确定删除这个客户吗？"
-            onConfirm={() => handleDelete(record.id)}
+            onConfirm={() => {
+              if (record.id != null) handleDelete(record.id);
+            }}
             okText="确定"
             cancelText="取消"
           >
             <Button type="text" danger icon={<DeleteOutlined />}>
               删除
+            </Button>
+          </Popconfirm>
+          <Popconfirm
+            title="确定将该客户转入公海吗？"
+            okText="确定"
+            cancelText="取消"
+            onConfirm={() => handleToPool(record)}
+          >
+            <Button type="text" icon={<ExportOutlined />}>
+              转入公海
             </Button>
           </Popconfirm>
         </Space>
@@ -160,12 +161,12 @@ export default function CustomerPage() {
     setIsAddModalVisible(true);
   };
 
-  const handleEdit = (customer: any) => {
+  const handleEdit = (customer: Customer) => {
     setSelectedCustomer(customer);
     setIsEditModalVisible(true);
   };
 
-  const handleViewDetail = (customer: any) => {
+  const handleViewDetail = (customer: Customer) => {
     setSelectedCustomer(customer);
     setIsDetailModalVisible(true);
   };
@@ -177,6 +178,19 @@ export default function CustomerPage() {
       message.success("删除成功");
     } catch (error: any) {
       message.error(error.message || "删除失败");
+    }
+  };
+
+  const handleToPool = async (customer: Customer) => {
+    if (!customer.id) return;
+    try {
+      await poolApi.toPool(customer.id, "手动转入公海");
+      message.success("已转入公海");
+      await loadCustomers();
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : "转入公海失败";
+      console.error("[CustomerPage] 转入公海失败:", error);
+      message.error(errMsg);
     }
   };
 

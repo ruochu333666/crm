@@ -1,12 +1,18 @@
 import { Router } from "express";
-import { RowDataPacket } from "mysql2/promise";
+import { ResultSetHeader, RowDataPacket } from "mysql2/promise";
 import { pool } from "../config/db";
+import { requireAuth } from "../middleware/auth";
 
 export const customersRouter = Router();
+customersRouter.use(requireAuth);
 
 // 获取客户列表
 customersRouter.get("/", async (req, res, next) => {
   try {
+    const ownerUserId = req.user?.id;
+    if (!ownerUserId) {
+      return res.status(401).json({ message: "未授权访问" });
+    }
     const {
       page = 1,
       pageSize = 10,
@@ -15,8 +21,8 @@ customersRouter.get("/", async (req, res, next) => {
       region = "",
     } = req.query;
 
-    let whereClause = "WHERE 1=1";
-    const params: any[] = [];
+    let whereClause = "WHERE owner_user_id = ? AND pool_status = 'private'";
+    const params: Array<string | number> = [ownerUserId];
 
     if (search) {
       whereClause += " AND (name LIKE ? OR contact LIKE ?)";
@@ -25,12 +31,12 @@ customersRouter.get("/", async (req, res, next) => {
 
     if (status) {
       whereClause += " AND status = ?";
-      params.push(status);
+      params.push(String(status));
     }
 
     if (region) {
       whereClause += " AND region = ?";
-      params.push(region);
+      params.push(String(region));
     }
 
     // 获取总数
@@ -61,11 +67,15 @@ customersRouter.get("/", async (req, res, next) => {
 // 获取单个客户详情
 customersRouter.get("/:id", async (req, res, next) => {
   try {
+    const ownerUserId = req.user?.id;
+    if (!ownerUserId) {
+      return res.status(401).json({ message: "未授权访问" });
+    }
     const { id } = req.params;
 
     const [rows] = await pool.query<RowDataPacket[]>(
-      "SELECT * FROM customers WHERE id = ?",
-      [id]
+      "SELECT * FROM customers WHERE id = ? AND owner_user_id = ? AND pool_status = 'private'",
+      [id, ownerUserId]
     );
 
     if (rows.length === 0) {
@@ -81,6 +91,10 @@ customersRouter.get("/:id", async (req, res, next) => {
 // 创建客户
 customersRouter.post("/", async (req, res, next) => {
   try {
+    const ownerUserId = req.user?.id;
+    if (!ownerUserId) {
+      return res.status(401).json({ message: "未授权访问" });
+    }
     const {
       name,
       company,
@@ -100,8 +114,9 @@ customersRouter.post("/", async (req, res, next) => {
     }
 
     const [result] = await pool.query(
-      `INSERT INTO customers (name, company, contact, phone, email, region, status, industry, address, remark) 
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO customers 
+       (name, company, contact, phone, email, region, status, industry, address, remark, owner_user_id, pool_status) 
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'private')`,
       [
         name,
         company,
@@ -113,6 +128,7 @@ customersRouter.post("/", async (req, res, next) => {
         industry,
         address,
         remark,
+        ownerUserId,
       ]
     );
 
@@ -128,6 +144,10 @@ customersRouter.post("/", async (req, res, next) => {
 // 更新客户
 customersRouter.put("/:id", async (req, res, next) => {
   try {
+    const ownerUserId = req.user?.id;
+    if (!ownerUserId) {
+      return res.status(401).json({ message: "未授权访问" });
+    }
     const { id } = req.params;
     const {
       name,
@@ -147,11 +167,11 @@ customersRouter.put("/:id", async (req, res, next) => {
       return res.status(400).json({ message: "必填字段不能为空" });
     }
 
-    const [result] = await pool.query(
+    const [result] = await pool.query<ResultSetHeader>(
       `UPDATE customers SET 
        name=?, company=?, contact=?, phone=?, email=?, region=?, status=?, 
        industry=?, address=?, remark=?, updated_at=NOW()
-       WHERE id=?`,
+       WHERE id=? AND owner_user_id = ? AND pool_status = 'private'`,
       [
         name,
         company,
@@ -164,10 +184,11 @@ customersRouter.put("/:id", async (req, res, next) => {
         address,
         remark,
         id,
+        ownerUserId,
       ]
     );
 
-    if ((result as any).affectedRows === 0) {
+    if (result.affectedRows === 0) {
       return res.status(404).json({ message: "客户不存在" });
     }
 
@@ -180,13 +201,18 @@ customersRouter.put("/:id", async (req, res, next) => {
 // 删除客户
 customersRouter.delete("/:id", async (req, res, next) => {
   try {
+    const ownerUserId = req.user?.id;
+    if (!ownerUserId) {
+      return res.status(401).json({ message: "未授权访问" });
+    }
     const { id } = req.params;
 
-    const [result] = await pool.query("DELETE FROM customers WHERE id = ?", [
-      id,
-    ]);
+    const [result] = await pool.query<ResultSetHeader>(
+      "DELETE FROM customers WHERE id = ? AND owner_user_id = ? AND pool_status = 'private'",
+      [id, ownerUserId]
+    );
 
-    if ((result as any).affectedRows === 0) {
+    if (result.affectedRows === 0) {
       return res.status(404).json({ message: "客户不存在" });
     }
 

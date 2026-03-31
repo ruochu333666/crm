@@ -3,6 +3,8 @@ import { create } from "zustand";
 interface User {
   id: number;
   username: string;
+  role?: "sales" | "manager" | "admin";
+  teamId?: number;
 }
 
 interface AuthState {

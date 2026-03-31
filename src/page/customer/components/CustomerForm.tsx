@@ -1,11 +1,13 @@
 import { Form, Input, Select, Button, Space, message } from "antd";
 import { useState, useEffect } from "react";
+import type { Customer } from "../../../api/types";
+import { customersApi } from "../../../api/customers";
 import styles from "./CustomerForm.module.less";
 
 const { Option } = Select;
 
 interface CustomerFormProps {
-  customer?: any;
+  customer?: Customer | null;
   onSuccess: () => void;
   onCancel: () => void;
 }
@@ -24,18 +26,26 @@ export function CustomerForm({
     }
   }, [customer, form]);
 
-  const handleSubmit = async (values: any) => {
+  const handleSubmit = async (
+    values: Omit<Customer, "id" | "created_at" | "updated_at">
+  ) => {
     try {
       setLoading(true);
-
-      // 模拟API调用
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      console.log("客户数据:", values);
-      message.success(customer ? "编辑成功" : "新增成功");
+      if (customer?.id) {
+        await customersApi.update(customer.id, values);
+      } else {
+        await customersApi.create(values);
+      }
       onSuccess();
-    } catch (error) {
-      message.error("操作失败");
+    } catch (error: unknown) {
+      const msg =
+        error instanceof Error ? error.message : "保存客户失败";
+      console.error(
+        "[CustomerForm] 提交客户失败:",
+        customer?.id ? `更新 id=${customer.id}` : "新增",
+        error
+      );
+      message.error(msg);
     } finally {
       setLoading(false);
     }

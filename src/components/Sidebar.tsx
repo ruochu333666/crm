@@ -7,8 +7,12 @@ import {
   MenuFoldOutlined,
   MenuUnfoldOutlined,
   TeamOutlined,
+  ClusterOutlined,
+  CheckSquareOutlined,
+  ProjectOutlined,
+  AuditOutlined,
 } from "@ant-design/icons";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/auth";
 import styles from "./Sidebar.module.less";
 
@@ -22,6 +26,7 @@ interface SidebarProps {
 
 export function Sidebar({ collapsed, onCollapse }: SidebarProps) {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, logout } = useAuthStore();
 
   const handleLogout = () => {
@@ -43,6 +48,30 @@ export function Sidebar({ collapsed, onCollapse }: SidebarProps) {
       onClick: () => navigate("/customer"),
     },
     {
+      key: "pool",
+      icon: <ClusterOutlined />,
+      label: "公海管理",
+      onClick: () => navigate("/pool"),
+    },
+    {
+      key: "task",
+      icon: <CheckSquareOutlined />,
+      label: "任务管理",
+      onClick: () => navigate("/task"),
+    },
+    {
+      key: "opportunities",
+      icon: <ProjectOutlined />,
+      label: "商机管理",
+      onClick: () => navigate("/opportunities"),
+    },
+    {
+      key: "opportunity-requests",
+      icon: <AuditOutlined />,
+      label: "商机审批",
+      onClick: () => navigate("/opportunity-requests"),
+    },
+    {
       key: "profile",
       icon: <UserOutlined />,
       label: "个人中心",
@@ -55,6 +84,8 @@ export function Sidebar({ collapsed, onCollapse }: SidebarProps) {
       onClick: () => navigate("/settings"),
     },
   ];
+
+  const selectedKey = location.pathname.replace("/", "") || "home";
 
   return (
     <Sider
@@ -95,7 +126,7 @@ export function Sidebar({ collapsed, onCollapse }: SidebarProps) {
       {/* 导航菜单 */}
       <Menu
         mode="inline"
-        defaultSelectedKeys={["home"]}
+        selectedKeys={[selectedKey]}
         className={styles.menu}
         items={menuItems}
       />

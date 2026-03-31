@@ -28,3 +28,8 @@ export async function testConnection(): Promise<void> {
   }
 }
 
+/** 登录依赖 users 表；不存在时给出明确提示 */
+export async function assertUsersTable(): Promise<void> {
+  await pool.query("SELECT 1 FROM users LIMIT 1");
+}
+

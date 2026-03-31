@@ -19,6 +19,11 @@ export function errorHandler(
 
   // eslint-disable-next-line no-console
   console.error("[error]", error);
+  const errObj = error as Record<string, unknown>;
+  if (typeof errObj?.code === "string") {
+    // eslint-disable-next-line no-console
+    console.error("[error] mysql/code:", errObj.code, "errno:", errObj.errno);
+  }
 
   res.status(status).json({ message });
 }

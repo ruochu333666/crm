@@ -7,6 +7,10 @@ import { apiRouter } from "./routes/index";
 
 // Global error handler
 import { errorHandler } from "./middleware/errorHandler";
+import {
+  assertUsersTable,
+  testConnection,
+} from "./config/db";
 
 const app = express();
 
@@ -34,7 +38,45 @@ app.use(
 
 const PORT = Number(process.env.PORT || 5174);
 
-app.listen(PORT, () => {
-  // eslint-disable-next-line no-console
-  console.log(`[server] listening on http://localhost:${PORT}`);
-});
+async function bootstrap(): Promise<void> {
+  try {
+    await testConnection();
+    // eslint-disable-next-line no-console
+    console.log("[server] 数据库连接成功");
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error(
+      "[server] 数据库连接失败。请在 backend 目录创建 .env，至少设置："
+    );
+    // eslint-disable-next-line no-console
+    console.error(
+      "  DB_HOST=127.0.0.1  DB_PORT=3306  DB_USER=root  DB_PASSWORD=<与 Docker MYSQL_ROOT_PASSWORD 一致>  DB_NAME=app_db"
+    );
+    // eslint-disable-next-line no-console
+    console.error(
+      "  并在 MySQL 中执行 backend/init.sql 创建库与 users 表（见 .env.example）。"
+    );
+    // eslint-disable-next-line no-console
+    console.error(err);
+    process.exit(1);
+  }
+
+  try {
+    await assertUsersTable();
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error(
+      "[server] 未找到 users 表。请在 MySQL 中执行：mysql -uroot -p < backend/init.sql（库名需与 DB_NAME 一致）。"
+    );
+    // eslint-disable-next-line no-console
+    console.error(err);
+    process.exit(1);
+  }
+
+  app.listen(PORT, () => {
+    // eslint-disable-next-line no-console
+    console.log(`[server] listening on http://localhost:${PORT}`);
+  });
+}
+
+void bootstrap();

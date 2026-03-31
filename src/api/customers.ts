@@ -1,20 +1,7 @@
-const API_BASE = "http://localhost:5174/api";
+import type { Customer } from "./types";
+import { apiRequest } from "./http";
 
-export interface Customer {
-  id?: number;
-  name: string;
-  company: string;
-  contact: string;
-  phone: string;
-  email: string;
-  region: string;
-  status: "active" | "potential" | "inactive";
-  industry?: string;
-  address?: string;
-  remark?: string;
-  created_at?: string;
-  updated_at?: string;
-}
+export type { Customer } from "./types";
 
 export interface CustomerListParams {
   page?: number;
@@ -32,7 +19,6 @@ export interface CustomerListResponse {
 }
 
 export const customersApi = {
-  // 获取客户列表
   getList: async (
     params: CustomerListParams = {}
   ): Promise<CustomerListResponse> => {
@@ -44,9 +30,8 @@ export const customersApi = {
     if (params.status) queryParams.append("status", params.status);
     if (params.region) queryParams.append("region", params.region);
 
-    const response = await fetch(
-      `${API_BASE}/customers?${queryParams.toString()}`
-    );
+    const qs = queryParams.toString();
+    const response = await apiRequest(`/customers${qs ? `?${qs}` : ""}`);
 
     if (!response.ok) {
       const error = await response.json();
@@ -56,9 +41,8 @@ export const customersApi = {
     return response.json();
   },
 
-  // 获取客户详情
   getDetail: async (id: number): Promise<{ data: Customer }> => {
-    const response = await fetch(`${API_BASE}/customers/${id}`);
+    const response = await apiRequest(`/customers/${id}`);
 
     if (!response.ok) {
       const error = await response.json();
@@ -68,13 +52,11 @@ export const customersApi = {
     return response.json();
   },
 
-  // 创建客户
   create: async (
     customer: Omit<Customer, "id" | "created_at" | "updated_at">
   ): Promise<{ message: string; id: number }> => {
-    const response = await fetch(`${API_BASE}/customers`, {
+    const response = await apiRequest("/customers", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(customer),
     });
 
@@ -86,14 +68,12 @@ export const customersApi = {
     return response.json();
   },
 
-  // 更新客户
   update: async (
     id: number,
     customer: Omit<Customer, "id" | "created_at" | "updated_at">
   ): Promise<{ message: string }> => {
-    const response = await fetch(`${API_BASE}/customers/${id}`, {
+    const response = await apiRequest(`/customers/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(customer),
     });
 
@@ -105,9 +85,8 @@ export const customersApi = {
     return response.json();
   },
 
-  // 删除客户
   delete: async (id: number): Promise<{ message: string }> => {
-    const response = await fetch(`${API_BASE}/customers/${id}`, {
+    const response = await apiRequest(`/customers/${id}`, {
       method: "DELETE",
     });
 

@@ -4,6 +4,12 @@ import LoginPage from "./page/login";
 import RegisterPage from "./page/register";
 import HomePage from "./page/home";
 import CustomerPage from "./page/customer";
+import ProfilePage from "./page/profile";
+import SettingsPage from "./page/settings";
+import PoolPage from "./page/pool";
+import TaskPage from "./page/task";
+import OpportunityPage from "./page/opportunity";
+import OpportunityRequestsPage from "./page/opportunity/requests";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { useAuthStore } from "./store/auth";
 
@@ -34,6 +40,54 @@ function App() {
           element={
             <ProtectedRoute>
               <HomePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <SettingsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/pool"
+          element={
+            <ProtectedRoute>
+              <PoolPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/task"
+          element={
+            <ProtectedRoute>
+              <TaskPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/opportunities"
+          element={
+            <ProtectedRoute>
+              <OpportunityPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/opportunity-requests"
+          element={
+            <ProtectedRoute>
+              <OpportunityRequestsPage />
             </ProtectedRoute>
           }
         />
