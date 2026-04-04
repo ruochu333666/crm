@@ -11,6 +11,7 @@ import {
   CheckSquareOutlined,
   ProjectOutlined,
   AuditOutlined,
+  ShoppingCartOutlined,
 } from "@ant-design/icons";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/auth";
@@ -46,6 +47,12 @@ export function Sidebar({ collapsed, onCollapse }: SidebarProps) {
       icon: <TeamOutlined />,
       label: "客户管理",
       onClick: () => navigate("/customer"),
+    },
+    {
+      key: "orders",
+      icon: <ShoppingCartOutlined />,
+      label: "订单管理",
+      onClick: () => navigate("/orders"),
     },
     {
       key: "pool",

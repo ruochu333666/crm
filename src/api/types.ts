@@ -85,6 +85,31 @@ export interface Opportunity {
   owner_username?: string | null;
 }
 
+/** 订单（与后端 orders 表一致，列表接口可带 customer_name） */
+export interface Order {
+  id: number;
+  customer_id: number;
+  owner_user_id: number;
+  order_no: string;
+  product_summary: string;
+  amount: number;
+  currency: string;
+  incoterms?: string | null;
+  shipping_method?: string | null;
+  logistics_no?: string | null;
+  deposit_amount?: number | null;
+  balance_amount?: number | null;
+  status: string;
+  ordered_at?: string | null;
+  expected_ship_at?: string | null;
+  shipped_at?: string | null;
+  remark?: string | null;
+  created_at: string;
+  updated_at: string;
+  customer_name?: string | null;
+  customer_company?: string | null;
+}
+
 export interface OpportunityStageRequest {
   id: number;
   opportunity_id: number;

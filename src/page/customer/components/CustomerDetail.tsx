@@ -25,6 +25,18 @@ import { useEffect, useState } from "react";
 import type { Customer } from "../../../api/types";
 import type { FollowupRecord } from "../../../api/types";
 import { followupsApi } from "../../../api/followups";
+import { aiApi } from "../../../api/ai";
+import { ordersApi } from "../../../api/orders";
+import type { Order } from "../../../api/types";
+import {
+  OrderFormModal,
+  ORDER_STATUS_OPTIONS,
+  type OrderFormModalValues,
+} from "../../../components/OrderFormModal";
+import {
+  orderFormToCreateBody,
+  orderFormToPatchBody,
+} from "../../../utils/orderFormPayload";
 import styles from "./CustomerDetail.module.less";
 
 interface CustomerDetailProps {
@@ -43,6 +55,19 @@ export function CustomerDetail({ customer }: CustomerDetailProps) {
   const [openCreateModal, setOpenCreateModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [form] = Form.useForm();
+  const [aiVisible, setAiVisible] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiAdvice, setAiAdvice] = useState<{
+    summary: string;
+    nextAction: string;
+    talkTrack: string;
+    riskLevel: "low" | "medium" | "high";
+  } | null>(null);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(false);
+  const [orderModalOpen, setOrderModalOpen] = useState(false);
+  const [editingOrder, setEditingOrder] = useState<Order | null>(null);
+  const [orderSaving, setOrderSaving] = useState(false);
 
   const loadFollowups = async (customerId: number) => {
     try {
@@ -58,12 +83,32 @@ export function CustomerDetail({ customer }: CustomerDetailProps) {
     }
   };
 
+  const loadOrders = async (customerId: number) => {
+    try {
+      setOrdersLoading(true);
+      const res = await ordersApi.getList({
+        customerId,
+        page: 1,
+        pageSize: 100,
+      });
+      setOrders(res.data);
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : "加载订单失败";
+      console.error("[CustomerDetail] 加载订单失败:", error);
+      message.error(errMsg);
+    } finally {
+      setOrdersLoading(false);
+    }
+  };
+
   useEffect(() => {
     if (!customer?.id) {
       setFollowups([]);
+      setOrders([]);
       return;
     }
     void loadFollowups(customer.id);
+    void loadOrders(customer.id);
   }, [customer?.id]);
 
   if (!customer) return null;
@@ -93,6 +138,22 @@ export function CustomerDetail({ customer }: CustomerDetailProps) {
     }
   };
 
+  const handleLoadAIAdvice = async () => {
+    if (!customer.id) return;
+    try {
+      setAiLoading(true);
+      const res = await aiApi.getCustomerNextStep(customer.id);
+      setAiAdvice(res.data);
+      setAiVisible(true);
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : "获取AI建议失败";
+      console.error("[CustomerDetail] 获取AI建议失败:", error);
+      message.error(errMsg);
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   const statusMap = {
     active: { color: "green", text: "活跃" },
     potential: { color: "blue", text: "潜在" },
@@ -102,6 +163,32 @@ export function CustomerDetail({ customer }: CustomerDetailProps) {
   const statusConfig = statusMap[customer.status as keyof typeof statusMap] || {
     color: "default",
     text: customer.status,
+  };
+
+  const orderStatusLabel = (s: string) =>
+    ORDER_STATUS_OPTIONS.find((o) => o.value === s)?.label ?? s;
+
+  const handleSaveOrder = async (values: OrderFormModalValues) => {
+    if (!customer.id) return;
+    try {
+      setOrderSaving(true);
+      if (editingOrder) {
+        await ordersApi.patch(editingOrder.id, orderFormToPatchBody(values));
+        message.success("订单已更新");
+      } else {
+        await ordersApi.create(orderFormToCreateBody(values));
+        message.success("订单已创建");
+      }
+      setOrderModalOpen(false);
+      setEditingOrder(null);
+      await loadOrders(customer.id);
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : "保存订单失败";
+      console.error("[CustomerDetail] 保存订单失败:", error);
+      message.error(errMsg);
+    } finally {
+      setOrderSaving(false);
+    }
   };
 
   return (
@@ -208,32 +295,71 @@ export function CustomerDetail({ customer }: CustomerDetailProps) {
       <Divider />
 
       {/* 相关订单 */}
-      <Card title="相关订单" className={styles.orderCard}>
-        <div className={styles.orderList}>
-          <div className={styles.orderItem}>
-            <div className={styles.orderInfo}>
-              <strong>订单 #ORD-2024-001</strong>
-              <p>产品A × 100件</p>
-              <span className={styles.orderStatus}>已完成</span>
-            </div>
-            <div className={styles.orderAmount}>
-              <span className={styles.amount}>¥50,000</span>
-              <span className={styles.orderDate}>2024-01-10</span>
-            </div>
+      <Card
+        title="相关订单"
+        className={styles.orderCard}
+        extra={
+          <Button
+            size="small"
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => {
+              setEditingOrder(null);
+              setOrderModalOpen(true);
+            }}
+          >
+            新建订单
+          </Button>
+        }
+      >
+        {ordersLoading ? (
+          <div>加载订单中...</div>
+        ) : orders.length === 0 ? (
+          <div>暂无订单，可点击「新建订单」或下方「创建订单」录入。</div>
+        ) : (
+          <div className={styles.orderList}>
+            {orders.map((o) => (
+              <div key={o.id} className={styles.orderItem}>
+                <div className={styles.orderInfo}>
+                  <strong>{o.order_no}</strong>
+                  <p>{o.product_summary}</p>
+                  <Space size="small" wrap>
+                    <span className={styles.orderStatus}>
+                      {orderStatusLabel(o.status)}
+                    </span>
+                    {o.logistics_no ? (
+                      <span className={styles.timelineTime}>
+                        物流：{o.logistics_no}
+                      </span>
+                    ) : null}
+                  </Space>
+                </div>
+                <div className={styles.orderAmount}>
+                  <span className={styles.amount}>
+                    {o.currency} {Number(o.amount).toLocaleString()}
+                  </span>
+                  <span className={styles.orderDate}>
+                    {o.ordered_at
+                      ? String(o.ordered_at).replace("T", " ").slice(0, 10)
+                      : String(o.created_at).replace("T", " ").slice(0, 10)}
+                  </span>
+                  <div>
+                    <Button
+                      type="link"
+                      size="small"
+                      onClick={() => {
+                        setEditingOrder(o);
+                        setOrderModalOpen(true);
+                      }}
+                    >
+                      编辑
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
-
-          <div className={styles.orderItem}>
-            <div className={styles.orderInfo}>
-              <strong>订单 #ORD-2024-002</strong>
-              <p>产品B × 50件</p>
-              <span className={styles.orderStatus}>进行中</span>
-            </div>
-            <div className={styles.orderAmount}>
-              <span className={styles.amount}>¥25,000</span>
-              <span className={styles.orderDate}>2024-01-15</span>
-            </div>
-          </div>
-        </div>
+        )}
       </Card>
 
       {/* 操作按钮 */}
@@ -243,7 +369,17 @@ export function CustomerDetail({ customer }: CustomerDetailProps) {
             编辑客户
           </Button>
           <Button onClick={() => setOpenCreateModal(true)}>添加联系记录</Button>
-          <Button>创建订单</Button>
+          <Button onClick={() => void handleLoadAIAdvice()} loading={aiLoading}>
+            AI下一步建议
+          </Button>
+          <Button
+            onClick={() => {
+              setEditingOrder(null);
+              setOrderModalOpen(true);
+            }}
+          >
+            创建订单
+          </Button>
         </Space>
       </div>
 
@@ -293,6 +429,52 @@ export function CustomerDetail({ customer }: CustomerDetailProps) {
             />
           </Form.Item>
         </Form>
+      </Modal>
+
+      <OrderFormModal
+        open={orderModalOpen}
+        title={editingOrder ? "编辑订单" : "新建订单"}
+        confirmLoading={orderSaving}
+        customers={[customer]}
+        lockCustomerId={customer.id}
+        editingOrder={editingOrder}
+        onCancel={() => {
+          setOrderModalOpen(false);
+          setEditingOrder(null);
+        }}
+        onSubmit={(v) => handleSaveOrder(v)}
+      />
+
+      <Modal
+        title="AI 下一步跟进建议"
+        open={aiVisible}
+        onCancel={() => setAiVisible(false)}
+        footer={null}
+      >
+        {aiAdvice ? (
+          <Space direction="vertical" style={{ width: "100%" }} size="middle">
+            <div>
+              <strong>客户现状总结</strong>
+              <p>{aiAdvice.summary}</p>
+            </div>
+            <div>
+              <strong>建议下一步动作</strong>
+              <p>{aiAdvice.nextAction}</p>
+            </div>
+            <div>
+              <strong>推荐跟进话术</strong>
+              <p>{aiAdvice.talkTrack}</p>
+            </div>
+            <div>
+              <strong>风险等级</strong>
+              <Tag color={aiAdvice.riskLevel === "high" ? "red" : aiAdvice.riskLevel === "medium" ? "orange" : "green"}>
+                {aiAdvice.riskLevel}
+              </Tag>
+            </div>
+          </Space>
+        ) : (
+          <div>暂无建议</div>
+        )}
       </Modal>
     </div>
   );

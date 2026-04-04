@@ -1,10 +1,13 @@
-import { Button, message } from "antd";
+import { Button, Modal, Select, Space, Tag, message } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { MainLayout } from "../../components/MainLayout";
 import { apiRequest } from "../../api/http";
 import { followupsApi } from "../../api/followups";
 import type { TaskItem } from "../../api/types";
+import type { Customer } from "../../api/customers";
+import { customersApi } from "../../api/customers";
+import { aiApi, type CustomerNextStepAdvice } from "../../api/ai";
 import ReactECharts from "echarts-for-react";
 import styles from "./index.module.less";
 
@@ -23,6 +26,11 @@ function HomePage() {
     { action: string; count: number }[]
   >([]);
   const [loadingStats, setLoadingStats] = useState(false);
+  const [aiVisible, setAiVisible] = useState(false);
+  const [aiAdviceLoading, setAiAdviceLoading] = useState(false);
+  const [aiCustomers, setAiCustomers] = useState<Customer[]>([]);
+  const [aiCustomerId, setAiCustomerId] = useState<number | undefined>(undefined);
+  const [aiAdvice, setAiAdvice] = useState<CustomerNextStepAdvice | null>(null);
 
   const loadTasks = async () => {
     try {
@@ -89,6 +97,43 @@ function HomePage() {
     };
     void loadStats();
   }, []);
+
+  const loadAiCustomers = async () => {
+    try {
+      const res = await customersApi.getList({ page: 1, pageSize: 200 });
+      setAiCustomers(res.data);
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : "加载客户失败";
+      console.error("[HomePage] AI入口加载客户失败:", error);
+      message.error(errMsg);
+    }
+  };
+
+  const openAiModal = async () => {
+    setAiVisible(true);
+    setAiAdvice(null);
+    if (aiCustomers.length === 0) {
+      await loadAiCustomers();
+    }
+  };
+
+  const handleGenerateAdvice = async () => {
+    if (!aiCustomerId) {
+      message.warning("请先选择客户");
+      return;
+    }
+    try {
+      setAiAdviceLoading(true);
+      const res = await aiApi.getCustomerNextStep(aiCustomerId);
+      setAiAdvice(res.data);
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : "获取AI建议失败";
+      console.error("[HomePage] 获取AI建议失败:", error);
+      message.error(errMsg);
+    } finally {
+      setAiAdviceLoading(false);
+    }
+  };
 
   const dateSet = new Set<string>();
   for (const r of taskTrend) dateSet.add(String(r.date));
@@ -190,6 +235,14 @@ function HomePage() {
               <p>个性化你的体验</p>
             </div>
           </div>
+
+          <div className={styles.statCard} onClick={() => void openAiModal()}>
+            <div className={styles.statIcon}>🤖</div>
+            <div className={styles.statContent}>
+              <h3>AI销售助手</h3>
+              <p>首页直接生成客户下一步建议</p>
+            </div>
+          </div>
         </div>
 
         <div className={styles.recentActivity}>
@@ -242,6 +295,67 @@ function HomePage() {
             <div style={{ marginTop: 8, color: "#888" }}>统计加载中...</div>
           ) : null}
         </div>
+
+        <Modal
+          title="AI销售助手"
+          open={aiVisible}
+          onCancel={() => setAiVisible(false)}
+          footer={
+            <Space>
+              <Button onClick={() => setAiVisible(false)}>关闭</Button>
+              <Button type="primary" loading={aiAdviceLoading} onClick={() => void handleGenerateAdvice()}>
+                生成建议
+              </Button>
+            </Space>
+          }
+          width={720}
+        >
+          <Space direction="vertical" style={{ width: "100%" }} size="middle">
+            <Select
+              showSearch
+              placeholder="请选择客户"
+              optionFilterProp="label"
+              value={aiCustomerId}
+              onChange={(v) => setAiCustomerId(v)}
+              options={aiCustomers.map((c) => ({
+                label: `${c.name}（${c.contact}）`,
+                value: c.id as number,
+              }))}
+            />
+            {aiAdvice ? (
+              <Space direction="vertical" style={{ width: "100%" }} size="small">
+                <div>
+                  <strong>客户现状总结</strong>
+                  <p>{aiAdvice.summary}</p>
+                </div>
+                <div>
+                  <strong>下一步动作建议</strong>
+                  <p>{aiAdvice.nextAction}</p>
+                </div>
+                <div>
+                  <strong>建议话术</strong>
+                  <p>{aiAdvice.talkTrack}</p>
+                </div>
+                <div>
+                  <strong>风险等级</strong>{" "}
+                  <Tag
+                    color={
+                      aiAdvice.riskLevel === "high"
+                        ? "red"
+                        : aiAdvice.riskLevel === "medium"
+                          ? "orange"
+                          : "green"
+                    }
+                  >
+                    {aiAdvice.riskLevel}
+                  </Tag>
+                </div>
+              </Space>
+            ) : (
+              <div style={{ color: "#888" }}>选择客户后点击“生成建议”</div>
+            )}
+          </Space>
+        </Modal>
       </div>
     </MainLayout>
   );

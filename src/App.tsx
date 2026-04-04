@@ -10,6 +10,7 @@ import PoolPage from "./page/pool";
 import TaskPage from "./page/task";
 import OpportunityPage from "./page/opportunity";
 import OpportunityRequestsPage from "./page/opportunity/requests";
+import OrderPage from "./page/order";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { useAuthStore } from "./store/auth";
 
@@ -32,6 +33,14 @@ function App() {
           element={
             <ProtectedRoute>
               <CustomerPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/orders"
+          element={
+            <ProtectedRoute>
+              <OrderPage />
             </ProtectedRoute>
           }
         />

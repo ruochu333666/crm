@@ -357,3 +357,32 @@ CREATE TABLE IF NOT EXISTS opportunity_stage_requests (
   INDEX idx_requested_at (requested_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- 订单（与客户关联，支持币种/条款/物流/尾款等论文描述字段）
+CREATE TABLE IF NOT EXISTS orders (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  customer_id INT UNSIGNED NOT NULL,
+  owner_user_id INT UNSIGNED NOT NULL,
+  order_no VARCHAR(40) NOT NULL,
+  product_summary VARCHAR(512) NOT NULL,
+  amount DECIMAL(12,2) NOT NULL DEFAULT 0,
+  currency VARCHAR(8) NOT NULL DEFAULT 'CNY',
+  incoterms VARCHAR(64) NULL,
+  shipping_method VARCHAR(64) NULL,
+  logistics_no VARCHAR(128) NULL,
+  deposit_amount DECIMAL(12,2) NULL,
+  balance_amount DECIMAL(12,2) NULL,
+  status VARCHAR(32) NOT NULL DEFAULT 'pending',
+  ordered_at DATETIME NULL,
+  expected_ship_at DATETIME NULL,
+  shipped_at DATETIME NULL,
+  remark TEXT NULL,
+  created_at DATETIME NOT NULL DEFAULT NOW(),
+  updated_at DATETIME NOT NULL DEFAULT NOW(),
+  UNIQUE KEY uk_order_no (order_no),
+  INDEX idx_customer_id (customer_id),
+  INDEX idx_owner_user_id (owner_user_id),
+  INDEX idx_status (status),
+  INDEX idx_created_at (created_at),
+  CONSTRAINT fk_orders_customer FOREIGN KEY (customer_id) REFERENCES customers (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
