@@ -1,6 +1,7 @@
-import { Button, Card, Form, InputNumber, Space, Switch, Typography, message } from "antd";
+import { Alert, Button, Card, Form, InputNumber, Space, Switch, Tag, Typography, message } from "antd";
 import { useEffect, useState } from "react";
 import { MainLayout } from "../../components/MainLayout";
+import { aiApi, type AIStatus } from "../../api/ai";
 import { poolApi } from "../../api/pool";
 import type { PoolRule } from "../../api/types";
 import styles from "./index.module.less";
@@ -12,6 +13,8 @@ function SettingsPage() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [runningRecycle, setRunningRecycle] = useState(false);
+  const [aiStatus, setAiStatus] = useState<AIStatus | null>(null);
+  const [aiStatusLoading, setAiStatusLoading] = useState(false);
 
   const loadRules = async () => {
     try {
@@ -27,8 +30,23 @@ function SettingsPage() {
     }
   };
 
+  const loadAiStatus = async () => {
+    try {
+      setAiStatusLoading(true);
+      const res = await aiApi.getStatus();
+      setAiStatus(res.data);
+    } catch (error: unknown) {
+      const errMsg = error instanceof Error ? error.message : "加载 AI 状态失败";
+      console.error("[SettingsPage] 加载 AI 状态失败:", error);
+      message.error(errMsg);
+    } finally {
+      setAiStatusLoading(false);
+    }
+  };
+
   useEffect(() => {
     void loadRules();
+    void loadAiStatus();
   }, []);
 
   const handleSave = async (values: PoolRule) => {
@@ -68,8 +86,64 @@ function SettingsPage() {
         <Title level={3} className={styles.pageTitle}>
           设置
         </Title>
+
         <Card className={styles.card}>
-          <Paragraph>公海管理规则（建议由管理员/销售经理维护）</Paragraph>
+          <Space direction="vertical" size="middle" style={{ width: "100%" }}>
+            <div className={styles.cardHeader}>
+              <div>
+                <Title level={5} style={{ margin: 0 }}>
+                  AI 销售助手状态
+                </Title>
+                <Paragraph style={{ marginBottom: 0 }}>
+                  如果这里显示缺项，AI 销售助手就无法正常调用大模型。
+                </Paragraph>
+              </div>
+              {aiStatus ? (
+                <Tag color={aiStatus.ready ? "green" : "red"}>
+                  {aiStatus.ready ? "可用" : "不可用"}
+                </Tag>
+              ) : null}
+            </div>
+
+            {aiStatus ? (
+              <Alert
+                type={aiStatus.ready ? "success" : "warning"}
+                showIcon
+                message={
+                  aiStatus.ready
+                    ? "AI 销售助手配置完整，可以正常使用。"
+                    : "AI 销售助手当前不可用，请检查 backend/.env。"
+                }
+                description={
+                  <Space size={[8, 8]} wrap>
+                    <Tag color={aiStatus.enabled ? "green" : "default"}>
+                      AI_ENABLED: {aiStatus.enabled ? "true" : "false"}
+                    </Tag>
+                    <Tag color={aiStatus.hasBaseUrl ? "green" : "default"}>
+                      AI_BASE_URL: {aiStatus.hasBaseUrl ? "已配置" : "缺失"}
+                    </Tag>
+                    <Tag color={aiStatus.hasApiKey ? "green" : "default"}>
+                      AI_API_KEY: {aiStatus.hasApiKey ? "已配置" : "缺失"}
+                    </Tag>
+                    <Tag color={aiStatus.hasModel ? "green" : "default"}>
+                      AI_MODEL: {aiStatus.hasModel ? "已配置" : "缺失"}
+                    </Tag>
+                    <Tag>AI_PROTOCOL: {aiStatus.protocol}</Tag>
+                  </Space>
+                }
+              />
+            ) : null}
+
+            <Space>
+              <Button onClick={() => void loadAiStatus()} loading={aiStatusLoading}>
+                刷新 AI 状态
+              </Button>
+            </Space>
+          </Space>
+        </Card>
+
+        <Card className={styles.card}>
+          <Paragraph>公海管理规则，建议由管理员或销售经理维护。</Paragraph>
           <Form
             form={form}
             layout="vertical"

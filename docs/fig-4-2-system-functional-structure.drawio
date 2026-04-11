@@ -1,0 +1,116 @@
+<mxfile host="app.diagrams.net" agent="Cursor">
+  <diagram name="图4-2 系统功能结构图" id="crm-func-tree">
+    <mxGraphModel dx="1038" dy="626" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="root" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontStyle=1;fontSize=13;align=center;verticalAlign=middle;" value="基于 React 的贸易行业客户关系管理系统" vertex="1">
+          <mxGeometry height="44" width="500" x="334" y="32" as="geometry" />
+        </mxCell>
+        <mxCell id="layer1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontStyle=1;fontSize=12;align=center;verticalAlign=middle;" value="基础入口层" vertex="1">
+          <mxGeometry height="40" width="200" x="80" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="layer2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontStyle=1;fontSize=12;align=center;verticalAlign=middle;" value="业务运营层" vertex="1">
+          <mxGeometry height="40" width="200" x="484" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="layer3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=12;align=center;verticalAlign=middle;" value="智能分析层" vertex="1">
+          <mxGeometry height="40" width="200" x="688" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="e_r1" edge="1" parent="1" source="root" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#333333;endArrow=block;endFill=1;exitX=0.25;exitY=1;entryX=0.5;entryY=0;" target="layer1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="459" y="90" />
+              <mxPoint x="180" y="90" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_r2" edge="1" parent="1" source="root" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#333333;endArrow=block;endFill=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;" target="layer2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_r3" edge="1" parent="1" source="root" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#333333;endArrow=block;endFill=1;exitX=0.75;exitY=1;entryX=0.5;entryY=0;" target="layer3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="b1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=11;align=center;verticalAlign=middle;" value="认证与账号" vertex="1">
+          <mxGeometry height="32" width="170" x="95" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="b2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=11;align=center;verticalAlign=middle;" value="首页工作台" vertex="1">
+          <mxGeometry height="32" width="170" x="95" y="244" as="geometry" />
+        </mxCell>
+        <mxCell id="b3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=11;align=center;verticalAlign=middle;" value="个人中心" vertex="1">
+          <mxGeometry height="32" width="170" x="95" y="288" as="geometry" />
+        </mxCell>
+        <mxCell id="b4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=11;align=center;verticalAlign=middle;" value="系统设置（公海规则等）" vertex="1">
+          <mxGeometry height="32" width="170" x="95" y="332" as="geometry" />
+        </mxCell>
+        <mxCell id="o1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=11;align=center;verticalAlign=middle;" value="公海管理" vertex="1">
+          <mxGeometry height="32" width="170" x="399" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="o2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=11;align=center;verticalAlign=middle;" value="客户管理（含跟进记录）" vertex="1">
+          <mxGeometry height="32" width="170" x="399" y="244" as="geometry" />
+        </mxCell>
+        <mxCell id="o3" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=11;align=center;verticalAlign=middle;" value="任务管理" vertex="1">
+          <mxGeometry height="32" width="170" x="399" y="288" as="geometry" />
+        </mxCell>
+        <mxCell id="o4" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=11;align=center;verticalAlign=middle;" value="商机管理" vertex="1">
+          <mxGeometry height="32" width="170" x="399" y="332" as="geometry" />
+        </mxCell>
+        <mxCell id="o5" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=11;align=center;verticalAlign=middle;" value="商机审批" vertex="1">
+          <mxGeometry height="34" width="170" x="399" y="376" as="geometry" />
+        </mxCell>
+        <mxCell id="o6" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=11;align=center;verticalAlign=middle;" value="订单管理" vertex="1">
+          <mxGeometry height="32" width="170" x="399" y="420" as="geometry" />
+        </mxCell>
+        <mxCell id="i1" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=11;align=center;verticalAlign=middle;" value="统计分析（工作台图表）" vertex="1">
+          <mxGeometry height="32" width="170" x="703" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="i2" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;fontSize=11;align=center;verticalAlign=middle;" value="AI 销售助手（可选）" vertex="1">
+          <mxGeometry height="32" width="170" x="703" y="284" as="geometry" />
+        </mxCell>
+        <mxCell id="e_l1b1" edge="1" parent="1" source="layer1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#333333;endArrow=block;endFill=1;exitX=0.15;exitY=1;entryX=0.5;entryY=0;" target="b1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_l1b2" edge="1" parent="1" source="layer1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#333333;endArrow=block;endFill=1;exitX=0.38;exitY=1;entryX=0.5;entryY=0;" target="b2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_l1b3" edge="1" parent="1" source="layer1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#333333;endArrow=block;endFill=1;exitX=0.62;exitY=1;entryX=0.5;entryY=0;" target="b3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="5oXzd0VCfP-Xkivp8rFm-1" connectable="0" parent="e_l1b3" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" value="Text" vertex="1">
+          <mxGeometry relative="1" x="0.0439" y="-3" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e_l1b4" edge="1" parent="1" source="layer1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#333333;endArrow=block;endFill=1;exitX=0.85;exitY=1;entryX=0.5;entryY=0;" target="b4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_l2o1" edge="1" parent="1" source="layer2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#333333;endArrow=block;endFill=1;exitX=0.1;exitY=1;entryX=0.5;entryY=0;" target="o1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_l2o2" edge="1" parent="1" source="layer2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#333333;endArrow=block;endFill=1;exitX=0.26;exitY=1;entryX=0.5;entryY=0;" target="o2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_l2o3" edge="1" parent="1" source="layer2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#333333;endArrow=block;endFill=1;exitX=0.42;exitY=1;entryX=0.5;entryY=0;" target="o3">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_l2o4" edge="1" parent="1" source="layer2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#333333;endArrow=block;endFill=1;exitX=0.58;exitY=1;entryX=0.5;entryY=0;" target="o4">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_l2o5" edge="1" parent="1" source="layer2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#333333;endArrow=block;endFill=1;exitX=0.74;exitY=1;entryX=0.5;entryY=0;" target="o5">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_l2o6" edge="1" parent="1" source="layer2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#333333;endArrow=block;endFill=1;exitX=0.9;exitY=1;entryX=0.5;entryY=0;" target="o6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_l3i1" edge="1" parent="1" source="layer3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#333333;endArrow=block;endFill=1;exitX=0.35;exitY=1;entryX=0.5;entryY=0;" target="i1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_l3i2" edge="1" parent="1" source="layer3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#333333;endArrow=block;endFill=1;exitX=0.65;exitY=1;entryX=0.5;entryY=0;" target="i2">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="note" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=top;fontSize=10;fontColor=#666666;" value="说明：本图为「系统—层次—功能模块」树状结构，连线仅表示隶属关系，不表示业务流程先后；模块间数据流与时序宜另用流程图表示。" vertex="1">
+          <mxGeometry height="36" width="820" x="80" y="500" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

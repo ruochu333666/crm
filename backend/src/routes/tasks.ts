@@ -7,6 +7,15 @@ export const tasksRouter = Router();
 
 tasksRouter.use(requireAuth);
 
+/** 将 ISO 8601 或常见字符串转为 MySQL DATETIME 可接受的格式 */
+function toMysqlDateTime(input: string): string | null {
+  const d = new Date(input);
+  if (Number.isNaN(d.getTime())) {
+    return null;
+  }
+  return d.toISOString().slice(0, 19).replace("T", " ");
+}
+
 // GET /api/tasks
 tasksRouter.get("/", async (req, res, next) => {
   try {
@@ -126,6 +135,11 @@ tasksRouter.post("/", async (req, res, next) => {
       return res.status(400).json({ message: "customerId/title/dueAt 必填" });
     }
 
+    const dueAtMysql = toMysqlDateTime(String(dueAt));
+    if (!dueAtMysql) {
+      return res.status(400).json({ message: "截止时间格式无效" });
+    }
+
     const [customerRows] = await pool.query<RowDataPacket[]>(
       `SELECT id FROM customers
        WHERE id = ? AND owner_user_id = ? AND pool_status = 'private'
@@ -142,7 +156,7 @@ tasksRouter.post("/", async (req, res, next) => {
       `INSERT INTO tasks
        (customer_id, owner_user_id, followup_id, title, type, source, due_at, status, priority, result, done_at, created_at, updated_at)
        VALUES (?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())`,
-      [customerId, ownerUserId, title, type, source, dueAt, status, priority, result || null, doneAt]
+      [customerId, ownerUserId, title, type, source, dueAtMysql, status, priority, result || null, doneAt]
     );
 
     return res.status(201).json({ message: "任务创建成功", id: insertResult.insertId });
@@ -195,8 +209,12 @@ tasksRouter.put("/:id", async (req, res, next) => {
       values.push(status === "done" ? new Date().toISOString().slice(0, 19).replace("T", " ") : null);
     }
     if (dueAt !== undefined) {
+      const mysqlDue = toMysqlDateTime(String(dueAt));
+      if (!mysqlDue) {
+        return res.status(400).json({ message: "截止时间格式无效" });
+      }
       sets.push("due_at = ?");
-      values.push(dueAt);
+      values.push(mysqlDue);
     }
     if (priority !== undefined) {
       sets.push("priority = ?");

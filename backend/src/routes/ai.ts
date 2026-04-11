@@ -7,6 +7,26 @@ import { generateCustomerNextStepAdvice } from "../services/aiClient";
 export const aiRouter = Router();
 aiRouter.use(requireAuth);
 
+// GET /api/ai/status
+aiRouter.get("/status", (_req, res) => {
+  const enabled = String(process.env.AI_ENABLED || "false") === "true";
+  const protocol = (process.env.AI_PROTOCOL || "openai").toLowerCase();
+  const hasBaseUrl = Boolean(process.env.AI_BASE_URL);
+  const hasApiKey = Boolean(process.env.AI_API_KEY);
+  const hasModel = Boolean(process.env.AI_MODEL);
+
+  return res.json({
+    data: {
+      enabled,
+      protocol,
+      hasBaseUrl,
+      hasApiKey,
+      hasModel,
+      ready: enabled && hasBaseUrl && hasApiKey && hasModel,
+    },
+  });
+});
+
 // POST /api/ai/customer-next-step
 aiRouter.post("/customer-next-step", async (req, res, next) => {
   try {
@@ -23,7 +43,7 @@ aiRouter.post("/customer-next-step", async (req, res, next) => {
       whereClause += " AND c.owner_user_id = ? AND c.pool_status = 'private'";
       params.push(user.id);
     } else if (user.role === "manager") {
-      whereClause += " AND c.owner_user_id IN (SELECT id FROM users WHERE team_id = ?) ";
+      whereClause += " AND c.owner_user_id IN (SELECT id FROM users WHERE team_id = ?)";
       params.push(user.teamId || 1);
     }
 
@@ -80,4 +100,3 @@ aiRouter.post("/customer-next-step", async (req, res, next) => {
     next(error);
   }
 });
-
