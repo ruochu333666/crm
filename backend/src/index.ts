@@ -37,6 +37,7 @@ app.use(
 );
 
 const PORT = Number(process.env.PORT || 5174);
+const HOST = process.env.HOST || "0.0.0.0";
 
 async function bootstrap(): Promise<void> {
   try {
@@ -73,9 +74,9 @@ async function bootstrap(): Promise<void> {
     process.exit(1);
   }
 
-  app.listen(PORT, () => {
+  app.listen(PORT, HOST, () => {
     // eslint-disable-next-line no-console
-    console.log(`[server] listening on http://localhost:${PORT}`);
+    console.log(`[server] listening on http://${HOST}:${PORT}`);
   });
 }
 
