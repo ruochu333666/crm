@@ -1,4 +1,6 @@
-import { Layout, Menu, Avatar, Typography, Button } from "antd";
+import { useState } from "react";
+import { Layout, Menu, Avatar, Typography, Button, Dropdown, message } from "antd";
+import type { MenuProps } from "antd";
 import {
   HomeOutlined,
   UserOutlined,
@@ -12,9 +14,12 @@ import {
   ProjectOutlined,
   AuditOutlined,
   ShoppingCartOutlined,
+  SwapOutlined,
 } from "@ant-design/icons";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/auth";
+import { authApi } from "../api/auth";
+import { QUICK_SWITCH_ACCOUNTS } from "../config/quickSwitchAccounts";
 import styles from "./Sidebar.module.less";
 
 const { Sider } = Layout;
@@ -28,12 +33,39 @@ interface SidebarProps {
 export function Sidebar({ collapsed, onCollapse }: SidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, logout } = useAuthStore();
+  const { user, logout, login } = useAuthStore();
+  const [switching, setSwitching] = useState(false);
 
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
+
+  const handleQuickSwitch = async (username: string, password: string, label: string) => {
+    if (user?.username === username) {
+      message.info(`当前已是 ${label}`);
+      return;
+    }
+    try {
+      setSwitching(true);
+      const res = await authApi.login({ username, password });
+      login(res.token, res.user);
+      message.success(`已切换为 ${label}`);
+      navigate("/home", { replace: true });
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "切换失败";
+      message.error(msg);
+    } finally {
+      setSwitching(false);
+    }
+  };
+
+  const switchMenuItems: MenuProps["items"] = QUICK_SWITCH_ACCOUNTS.map((acc) => ({
+    key: acc.key,
+    label: acc.label,
+    disabled: switching,
+    onClick: () => void handleQuickSwitch(acc.username, acc.password, acc.label),
+  }));
 
   const menuItems = [
     {
@@ -116,10 +148,28 @@ export function Sidebar({ collapsed, onCollapse }: SidebarProps) {
               <Text className={styles.username}>{user?.username}</Text>
               <Text type="secondary" className={styles.userId}>
                 ID: {user?.id}
+                {user?.role ? ` · ${user.role}` : ""}
               </Text>
             </div>
           )}
         </div>
+
+        <Dropdown
+          menu={{ items: switchMenuItems }}
+          trigger={["click"]}
+          disabled={switching}
+        >
+          <Button
+            type="default"
+            size="small"
+            loading={switching}
+            icon={<SwapOutlined />}
+            className={`${styles.switchAccountBtn} ${collapsed ? styles.switchAccountBtnIconOnly : ""}`}
+            block={!collapsed}
+          >
+            {!collapsed && "切换账号"}
+          </Button>
+        </Dropdown>
 
         {/* 折叠按钮 */}
         <Button

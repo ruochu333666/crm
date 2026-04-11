@@ -252,68 +252,68 @@ export default function CustomerPage() {
   return (
     <MainLayout>
       <div className={styles.customerPage}>
-        {/* 页面标题 */}
-        <div className={styles.pageHeader}>
-          <h1>客户管理</h1>
-          <p>统一管理客户信息，提升销售效率</p>
-        </div>
-
-        {/* 操作栏 */}
-        <Card className={styles.toolbar}>
-          <div className={styles.toolbarLeft}>
-            <Space>
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={handleAdd}
-              >
-                新增客户
-              </Button>
-              <Button
-                icon={<ReloadOutlined />}
-                onClick={handleRefresh}
-                loading={loading}
-              >
-                刷新
-              </Button>
-            </Space>
+        <Card className={styles.headerToolbarCard}>
+          <div className={styles.pageHeader}>
+            <h1>客户管理</h1>
+            <p>统一管理客户信息，提升销售效率</p>
           </div>
 
-          <div className={styles.toolbarRight}>
-            <Space>
-              <Search
-                placeholder="搜索客户名称或联系人"
-                allowClear
-                onSearch={handleSearch}
-                style={{ width: 250 }}
-                prefix={<SearchOutlined />}
-              />
+          <div className={styles.toolbarRow}>
+            <div className={styles.toolbarLeft}>
+              <Space>
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  onClick={handleAdd}
+                >
+                  新增客户
+                </Button>
+                <Button
+                  icon={<ReloadOutlined />}
+                  onClick={handleRefresh}
+                  loading={loading}
+                >
+                  刷新
+                </Button>
+              </Space>
+            </div>
 
-              <Select
-                placeholder="状态筛选"
-                style={{ width: 120 }}
-                value={statusFilter}
-                onChange={setStatusFilter}
-              >
-                <Option value="all">全部状态</Option>
-                <Option value="active">活跃</Option>
-                <Option value="potential">潜在</Option>
-                <Option value="inactive">非活跃</Option>
-              </Select>
+            <div className={styles.toolbarRight}>
+              <Space>
+                <Search
+                  placeholder="搜索客户名称或联系人"
+                  allowClear
+                  onSearch={handleSearch}
+                  style={{ width: 250 }}
+                  prefix={<SearchOutlined />}
+                />
 
-              <Select
-                placeholder="地区筛选"
-                style={{ width: 120 }}
-                value={regionFilter}
-                onChange={setRegionFilter}
-              >
-                <Option value="all">全部地区</Option>
-                <Option value="华东">华东</Option>
-                <Option value="华南">华南</Option>
-                <Option value="华北">华北</Option>
-                <Option value="西南">西南</Option>
-              </Select>
-            </Space>
+                <Select
+                  placeholder="状态筛选"
+                  style={{ width: 120 }}
+                  value={statusFilter}
+                  onChange={setStatusFilter}
+                >
+                  <Option value="all">全部状态</Option>
+                  <Option value="active">活跃</Option>
+                  <Option value="potential">潜在</Option>
+                  <Option value="inactive">非活跃</Option>
+                </Select>
+
+                <Select
+                  placeholder="地区筛选"
+                  style={{ width: 120 }}
+                  value={regionFilter}
+                  onChange={setRegionFilter}
+                >
+                  <Option value="all">全部地区</Option>
+                  <Option value="华东">华东</Option>
+                  <Option value="华南">华南</Option>
+                  <Option value="华北">华北</Option>
+                  <Option value="西南">西南</Option>
+                </Select>
+              </Space>
+            </div>
           </div>
         </Card>
 

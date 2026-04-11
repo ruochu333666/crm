@@ -2,8 +2,21 @@
   padding: 0;
 }
 
+.headerToolbarCard {
+  margin-bottom: 28px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+
+  .ant-card-body {
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+}
+
 .pageHeader {
-  margin-bottom: 24px;
+  margin-bottom: 0;
 
   h1 {
     font-size: 28px;
@@ -19,17 +32,12 @@
   }
 }
 
-.toolbar {
-  margin-bottom: 24px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-
-  .ant-card-body {
-    padding: 20px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+.toolbarRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
 }
 
 .toolbarLeft {
@@ -53,12 +61,9 @@
 
 // 响应式设计
 @media (max-width: 768px) {
-  .toolbar {
-    .ant-card-body {
-      flex-direction: column;
-      gap: 16px;
-      align-items: stretch;
-    }
+  .toolbarRow {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .toolbarRight {
